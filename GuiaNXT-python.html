@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Programar el NXT en Python con nxt-python (Ubuntu)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Inter:wght@400;500;600;700&display=swap');
+
+  :root{
+    --bg: #f6f7fa;
+    --panel: #ffffff;
+    --panel-2: #f0f2f6;
+    --border: #dfe2ea;
+    --text: #1d2030;
+    --muted: #5b6075;
+    --accent: #d9640b;              /* naranja, como el botón ENTER del NXT */
+    --accent-soft: rgba(217,100,11,.10);
+    --green: #1f8a4c;
+    --green-soft: rgba(31,138,76,.10);
+    --blue: #2f5fd0;
+    --blue-soft: rgba(47,95,208,.10);
+    --code-bg: #f3f4f8;
+    --mono: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+    --sans: 'Inter', system-ui, 'Segoe UI', sans-serif;
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    line-height:1.55;
+    padding: 48px 20px 80px;
+  }
+  .wrap{ max-width: 780px; margin: 0 auto; }
+
+  header{ margin-bottom: 40px; }
+  .eyebrow{
+    font-family: var(--mono); font-size: 12px; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--accent);
+    display:flex; align-items:center; gap:10px; margin-bottom: 14px;
+  }
+  .eyebrow::before{
+    content:""; width:8px; height:8px; border-radius:50%;
+    background: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft);
+  }
+  h1{
+    font-family: var(--mono); font-weight:800;
+    font-size: clamp(25px, 4vw, 33px); line-height:1.15;
+    margin: 0 0 10px; letter-spacing: -0.01em;
+  }
+  h1 span{ color: var(--accent); }
+  .subtitle{ color: var(--muted); font-size: 15px; max-width: 60ch; margin:0; }
+
+  .section-title{
+    font-family: var(--mono); font-size: 13px; letter-spacing:.1em;
+    text-transform: uppercase; color: var(--muted);
+    margin: 44px 0 18px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  }
+
+  .step{
+    position: relative; display:grid; grid-template-columns: 56px 1fr;
+    gap: 18px; padding-bottom: 34px;
+  }
+  .step:not(:last-child)::before{
+    content:""; position:absolute; left:27px; top:56px; bottom:0; width:2px;
+    background: linear-gradient(var(--border), transparent);
+  }
+  .num{
+    width:56px; height:56px; border-radius:14px;
+    background: var(--panel); border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center;
+    font-family: var(--mono); font-weight:700; font-size:18px; color: var(--accent);
+  }
+  .content{ padding-top:6px; min-width:0; }
+  .content h2{ font-family: var(--mono); font-size: 16px; font-weight:700; margin: 0 0 8px; }
+  .content p, .content ul, .content ol{ margin: 0 0 12px; color: var(--muted); font-size: 14.5px; }
+  .content ul, .content ol{ padding-left: 20px; }
+  .content li{ margin-bottom: 4px; }
+  .content strong{ color: var(--text); }
+
+  code{
+    font-family: var(--mono); background: var(--panel-2);
+    padding: 2px 6px; border-radius: 5px; font-size: 12.5px; color: var(--text);
+  }
+  a{ color: var(--blue); }
+
+  .term{
+    background: var(--code-bg); border: 1px solid var(--border);
+    border-radius: 10px; overflow:hidden; margin: 10px 0 14px;
+  }
+  .term-bar{
+    display:flex; align-items:center; gap:6px; padding: 7px 12px;
+    background: var(--panel); border-bottom: 1px solid var(--border);
+  }
+  .term-bar span.dot{ width:9px; height:9px; border-radius:50%; background: #c9cdd8; }
+  .term-bar .label{
+    margin-left: 8px; font-family: var(--mono); font-size: 11.5px; color: var(--muted);
+  }
+  .term-bar button{
+    margin-left:auto; font-family: var(--mono); font-size: 11px;
+    border:1px solid var(--border); background: var(--bg); color: var(--muted);
+    border-radius:6px; padding:3px 9px; cursor:pointer;
+  }
+  .term-bar button:hover{ color: var(--accent); border-color: var(--accent); }
+  .term pre{
+    margin:0; padding: 14px 16px; font-family: var(--mono); font-size: 12.8px;
+    color: var(--text); overflow-x:auto; line-height:1.5;
+  }
+  .kw{ color:#a12a8a; font-weight:600; }
+  .ty{ color:#2f5fd0; }
+  .st{ color:#1f8a4c; }
+  .cm{ color:#8a8fa3; font-style: italic; }
+  .nu{ color:#c4570a; }
+
+  .badge{
+    display:inline-flex; align-items:center; font-family: var(--mono);
+    font-size: 11px; font-weight:600; letter-spacing:.04em;
+    padding: 3px 9px; border-radius:999px; margin-bottom:10px; text-transform: uppercase;
+  }
+  .badge.opt{ background: var(--blue-soft); color: var(--blue); }
+  .badge.warn{ background: var(--accent-soft); color: var(--accent); }
+  .badge.ok{ background: var(--green-soft); color: var(--green); }
+
+  .panel{
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 18px; margin: 10px 0 14px;
+  }
+  .panel p:last-child, .panel ul:last-child{ margin-bottom:0; }
+  .panel-title{ font-family: var(--mono); font-size: 13px; font-weight:700; margin: 0 0 6px; }
+
+  .tree{ font-family: var(--mono); font-size: 12.8px; color: var(--text); white-space: pre; overflow-x:auto; }
+
+  table{ width:100%; border-collapse: collapse; font-size: 14px; margin: 6px 0 14px; }
+  th, td{ text-align:left; padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th{ font-family: var(--mono); font-size: 12px; color: var(--muted); font-weight:600; }
+  td code{ white-space: nowrap; }
+  .table-wrap{ overflow-x:auto; }
+
+  .note{
+    border-radius: 12px; padding: 16px 18px; background: var(--accent-soft);
+    border: 1px solid rgba(217,100,11,.30); margin-top: 18px;
+  }
+  .note h2{ font-family: var(--mono); font-size: 15px; margin: 0 0 10px; }
+  .note dl{ margin:0; }
+  .note dt{ font-family: var(--mono); font-size: 13px; font-weight:700; margin-top: 12px; }
+  .note dd{ margin: 4px 0 0; color: var(--muted); font-size: 14px; }
+
+  .check{ list-style:none; padding-left:0 !important; margin:0; }
+  .check li{ margin-bottom:6px; color: var(--muted); font-size:14.5px; }
+  .check input{ accent-color: var(--accent); margin-right:8px; }
+  .toc{ margin-bottom: 8px; }
+  .toc-grid{ columns: 2 280px; column-gap: 40px; }
+  .toc-grid > div{ break-inside: avoid; display: inline-block; width: 100%; }
+  .toc-sec{ font-family: var(--mono); font-size: 11.5px; letter-spacing:.08em; text-transform: uppercase; color: var(--accent); margin: 10px 0 4px; }
+  .toc ol, .toc ul{ margin: 0 0 6px; padding-left: 22px; font-size: 14px; }
+  .toc li{ margin-bottom: 3px; color: var(--muted); }
+  .toc a{ color: var(--text); text-decoration: none; }
+  .toc a:hover{ color: var(--accent); text-decoration: underline; }
+  .section-title .top{ float:right; font-size: 11px; letter-spacing: 0; text-transform: none; color: var(--muted); text-decoration:none; }
+  .section-title .top:hover{ color: var(--accent); }
+  html{ scroll-behavior: smooth; }
+  [id]{ scroll-margin-top: 16px; }
+  @media print{ .section-title .top{ display:none; } }
+  .ej{ padding: 10px 14px; background: var(--panel); border-radius: 0 10px 10px 0; margin: 12px 0 14px; border:1px solid var(--border); border-left:3px solid var(--accent); }
+  .ej p.panel-title{ color: var(--accent); }
+  .ej ol, .ej ul{ margin-bottom:0; }
+  .meta{ display:flex; flex-wrap:wrap; gap:8px; margin: 0 0 12px; }
+  .meta span{ font-family: var(--mono); font-size: 11.5px; background: var(--panel-2); border:1px solid var(--border); border-radius: 999px; padding: 3px 10px; color: var(--muted); }
+  footer{
+    margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border);
+    text-align:center; font-family: var(--mono); font-size: 12px; color: var(--muted);
+  }
+
+  @media (max-width: 560px){
+    .step{ grid-template-columns: 1fr; gap: 10px; }
+    .step::before{ display:none; }
+    .num{ width:44px; height:44px; font-size:16px; }
+  }
+  @media print{
+    body{ background:#fff; padding: 0; }
+    .term-bar button{ display:none; }
+    .step, .panel, .term, .note{ break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">Robótica · LEGO NXT · Python</div>
+  <h1>Programar el NXT en <span>Python</span> con nxt-python</h1>
+  <p class="subtitle">Control del NXT desde la computadora con Python, sin cambiar el firmware de LEGO. Instalación en Ubuntu y primeros programas.</p>
+</header>
+
+<nav class="toc panel" id="indice">
+  <p class="panel-title">Índice</p>
+  <div class="toc-grid">
+    <div><p class="toc-sec">Instalación (Ubuntu)</p><ol>
+      <li value="1"><a href="#firmware">Comprobar el firmware del NXT</a></li>
+      <li value="2"><a href="#instalar">Instalar Python y nxt-python</a></li>
+      <li value="3"><a href="#permisos">Dar permiso de acceso al NXT por USB</a></li>
+      <li value="4"><a href="#probar">Probar la conexión</a></li>
+    </ol></div>
+    <div><p class="toc-sec">Programar</p><ol>
+      <li value="5"><a href="#hola">Primer programa</a></li>
+      <li value="6"><a href="#motores">Motores</a></li>
+      <li value="7"><a href="#sensores">Sensores</a></li>
+      <li value="8"><a href="#explorador">Explorador que esquiva obstáculos</a></li>
+      <li value="9"><a href="#clase">Una clase Robot en Python</a></li>
+    </ol></div>
+  </div>
+</nav>
+
+<div class="panel">
+  <span class="badge warn">Pendiente de prueba</span>
+  <p class="panel-title">Estado de esta guía</p>
+  <p>Armada a partir de la documentación oficial de nxt-python 3; <strong>todavía no se probó en la sala</strong>.</p>
+</div>
+<div class="panel">
+  <p class="panel-title">Cómo funciona nxt-python</p>
+  <p>El programa en Python corre <strong>en la computadora</strong> y le envía órdenes al NXT por USB (o Bluetooth), una por una. Es distinto de leJOS, donde el programa se copia al NXT y corre dentro de él.</p>
+  <div class="table-wrap"><table>
+    <tr><th></th><th>leJOS (Java)</th><th>nxt-python</th></tr>
+    <tr><td>Dónde corre el programa</td><td>En el NXT</td><td>En la computadora</td></tr>
+    <tr><td>Firmware del NXT</td><td>leJOS (hay que instalarlo)</td><td>El original de LEGO (no se toca)</td></tr>
+    <tr><td>Sirve también para Open Roberta</td><td>No, hasta reinstalar el de LEGO</td><td>Sí</td></tr>
+    <tr><td>Robot sin cable</td><td>Sí, una vez subido el programa</td><td>Solo con Bluetooth</td></tr>
+    <tr><td>Pantalla del NXT</td><td>Se usa para mostrar mensajes</td><td>Los mensajes salen en la computadora</td></tr>
+  </table></div>
+  <p>Es una buena opción para trabajar robótica en <strong>Python</strong> con los NXT de la sala sin cambiarles el firmware, en paralelo con lo que se hace con Python en el SPIKE.</p>
+</div>
+
+<h3 class="section-title"><a class="top" href="#indice">↑ índice</a>Instalación (Ubuntu)</h3>
+
+<div class="step" id="firmware">
+  <div class="num">01</div>
+  <div class="content">
+    <h2>Comprobar el firmware del NXT</h2>
+
+<p>nxt-python necesita el <strong>firmware original de LEGO</strong>. Encender el NXT: si aparece el menú de LEGO (<strong>My Files</strong>, <strong>NXT Program</strong>, <strong>View</strong>…), está listo. Si aparece el menú de leJOS, ese NXT se usa con Java o hay que reinstalarle el firmware de LEGO con el software LEGO MINDSTORMS NXT.</p>
+<p>Configurar el apagado automático para que no se apague durante la clase: en el menú de LEGO, <strong>Settings → Sleep → Never</strong>.</p>
+  </div>
+</div>
+
+
+<div class="step" id="instalar">
+  <div class="num">02</div>
+  <div class="content">
+    <h2>Instalar Python y nxt-python</h2>
+
+<p>En Ubuntu, los paquetes de Python se instalan dentro de un <strong>entorno virtual</strong> (una carpeta con su propio Python). En una terminal:</p>
+<div class="term">
+  <div class="term-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="label">Terminal</span><button type="button">Copiar</button></div>
+  <pre>sudo apt update
+sudo apt install python3-venv python3-pip libusb-1.0-0
+
+python3 -m venv ~/nxt-env
+source ~/nxt-env/bin/activate
+pip install --upgrade nxt-python</pre>
+</div>
+
+<p>Cada vez que se abra una terminal nueva para trabajar con el NXT, activar el entorno con <code>source ~/nxt-env/bin/activate</code>. Se nota porque aparece <code>(nxt-env)</code> al principio de la línea.</p>
+  </div>
+</div>
+
+
+<div class="step" id="permisos">
+  <div class="num">03</div>
+  <div class="content">
+    <h2>Dar permiso de acceso al NXT por USB</h2>
+
+<p>Si la computadora ya tiene la regla de la guía de leJOS en Linux (repositorio <a href="https://github.com/Material-Robotica/NXT-java">NXT-java</a>), este paso no hace falta. Si no:</p>
+<div class="term">
+  <div class="term-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="label">Terminal</span><button type="button">Copiar</button></div>
+  <pre>sudo tee /etc/udev/rules.d/70-lego-nxt.rules &gt; /dev/null &lt;&lt;<span class="st">'EOF'</span>
+SUBSYSTEM==<span class="st">"usb"</span>, ATTRS{idVendor}==<span class="st">"0694"</span>, ATTRS{idProduct}==<span class="st">"0002"</span>, MODE=<span class="st">"0666"</span>
+EOF
+
+sudo udevadm control --reload-rules
+sudo udevadm trigger</pre>
+</div>
+<p>Desconectar y volver a conectar el NXT.</p>
+  </div>
+</div>
+
+
+<div class="step" id="probar">
+  <div class="num">04</div>
+  <div class="content">
+    <h2>Probar la conexión</h2>
+
+<p>Con el NXT encendido, conectado por USB y el entorno activado:</p>
+<div class="term">
+  <div class="term-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="label">Terminal</span><button type="button">Copiar</button></div>
+  <pre>nxt-test</pre>
+</div>
+
+<p>Si encuentra el NXT, muestra su nombre, la versión del firmware y el nivel de batería, y emite un sonido.</p>
+<span class="badge opt">Opcional · Bluetooth</span>
+<p>Para conectar sin cable, instalar el soporte de Bluetooth con <code>sudo apt install python3-bluez</code> y emparejar el NXT (PIN 1234). Requiere que la computadora tenga Bluetooth.</p>
+  </div>
+</div>
+
+
+<h3 class="section-title"><a class="top" href="#indice">↑ índice</a>Programar</h3>
+
+<div class="step" id="hola">
+  <div class="num">05</div>
+  <div class="content">
+    <h2>Primer programa</h2>
+
+<p>Crear una carpeta para los programas, por ejemplo <code>~/nxt-python</code>, y dentro el archivo <code>hola.py</code>:</p>
+<div class="term">
+  <div class="term-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="label">hola.py</span><button type="button">Copiar</button></div>
+  <pre><span class="kw">import</span> nxt.locator
+
+<span class="cm"># buscar el NXT conectado</span>
+<span class="kw">with</span> nxt.locator.find() <span class="kw">as</span> b:
+    nombre = b.get_device_info()[<span class="nu">0</span>]
+    print(<span class="st">"Conectado a:"</span>, nombre)
+    b.play_tone(<span class="nu">440</span>, <span class="nu">250</span>)</pre>
+</div>
+<div class="term">
+  <div class="term-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="label">Terminal</span><button type="button">Copiar</button></div>
+  <pre>cd ~/nxt-python
+python hola.py</pre>
+</div>
+
+<p>Todo lo que el robot hace ocurre dentro del bloque <code>with</code>: al salir de él, la conexión se cierra. El programa corre <strong>en la computadora</strong> y envía órdenes al NXT, así que el cable tiene que quedar conectado mientras el programa funciona.</p>
+<span class="badge opt">Con VS Code</span>
+<p>Instalar la extensión <strong>Python</strong> (Microsoft), abrir la carpeta, presionar <strong>Ctrl + Shift + P → Python: Select Interpreter</strong> y elegir <code>~/nxt-env/bin/python</code>. Después se ejecuta con el botón ▶ de la esquina superior derecha.</p>
+  </div>
+</div>
+
+
+<div class="step" id="motores">
+  <div class="num">06</div>
+  <div class="content">
+    <h2>Motores</h2>
+
+<p>La potencia va de −100 a 100 (negativa: hacia atrás). Motor izquierdo en <strong>B</strong> y derecho en <strong>C</strong>.</p>
+<div class="term">
+  <div class="term-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="label">motores.py</span><button type="button">Copiar</button></div>
+  <pre><span class="kw">import</span> time
+<span class="kw">import</span> nxt.locator
+<span class="kw">import</span> nxt.motor
+
+<span class="kw">with</span> nxt.locator.find() <span class="kw">as</span> b:
+    izquierdo = b.get_motor(nxt.motor.<span class="ty">Port</span>.<span class="ty">B</span>)
+    derecho = b.get_motor(nxt.motor.<span class="ty">Port</span>.<span class="ty">C</span>)
+
+    <span class="cm"># girar una cantidad de grados (potencia, grados)</span>
+    izquierdo.turn(<span class="nu">70</span>, <span class="nu">360</span>)
+    derecho.turn(<span class="nu">70</span>, <span class="nu">360</span>)
+
+    <span class="cm"># los dos motores sincronizados: avanzan en linea recta</span>
+    ambos = nxt.motor.<span class="ty">SynchronizedMotors</span>(izquierdo, derecho, <span class="nu">0</span>)
+    ambos.turn(<span class="nu">70</span>, <span class="nu">720</span>)
+
+    <span class="cm"># por tiempo: arrancar, esperar y frenar</span>
+    izquierdo.run(<span class="nu">70</span>)
+    derecho.run(<span class="nu">70</span>)
+    time.sleep(<span class="nu">2</span>)
+    izquierdo.brake()
+    derecho.brake()</pre>
+</div>
+
+<div class="table-wrap"><table>
+<tr><th>Método</th><th>Qué hace</th></tr>
+<tr><td><code>turn(potencia, grados)</code></td><td>Gira esa cantidad de grados y espera a terminar.</td></tr>
+<tr><td><code>run(potencia)</code></td><td>Gira sin parar.</td></tr>
+<tr><td><code>brake()</code> / <code>idle()</code></td><td>Frena de golpe / deja el motor suelto.</td></tr>
+<tr><td><code>SynchronizedMotors(a, b, giro)</code></td><td>Mueve dos motores juntos; con giro 0 van en línea recta.</td></tr>
+</table></div>
+  </div>
+</div>
+
+
+<div class="step" id="sensores">
+  <div class="num">07</div>
+  <div class="content">
+    <h2>Sensores</h2>
+
+<p>El sensor ultrasónico se detecta solo. Los demás (contacto, luz, sonido) son analógicos y hay que indicar su clase.</p>
+<div class="term">
+  <div class="term-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="label">sensores.py</span><button type="button">Copiar</button></div>
+  <pre><span class="kw">import</span> time
+<span class="kw">import</span> nxt.locator
+<span class="kw">import</span> nxt.sensor
+<span class="kw">import</span> nxt.sensor.generic
+
+<span class="kw">with</span> nxt.locator.find() <span class="kw">as</span> b:
+    tacto = b.get_sensor(nxt.sensor.<span class="ty">Port</span>.<span class="ty">S1</span>, nxt.sensor.generic.<span class="ty">Touch</span>)
+    luz = b.get_sensor(nxt.sensor.<span class="ty">Port</span>.<span class="ty">S3</span>, nxt.sensor.generic.<span class="ty">Light</span>)
+    sonar = b.get_sensor(nxt.sensor.<span class="ty">Port</span>.<span class="ty">S4</span>)
+    luz.set_illuminated(<span class="kw">True</span>)
+
+    print(<span class="st">"Ctrl + C para terminar"</span>)
+    <span class="kw">while</span> <span class="kw">True</span>:
+        print(<span class="st">"Tacto:"</span>, tacto.get_sample(),
+              <span class="st">"Luz:"</span>, luz.get_sample(),
+              <span class="st">"Distancia:"</span>, sonar.get_sample(), <span class="st">"cm"</span>)
+        time.sleep(<span class="nu">0.5</span>)</pre>
+</div>
+
+<p>Los valores se muestran en la terminal de la computadora, no en la pantalla del NXT. El programa se detiene con <strong>Ctrl + C</strong>.</p>
+  </div>
+</div>
+
+
+<div class="step" id="explorador">
+  <div class="num">08</div>
+  <div class="content">
+    <h2>Explorador que esquiva obstáculos</h2>
+
+<div class="term">
+  <div class="term-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="label">explorador.py</span><button type="button">Copiar</button></div>
+  <pre><span class="kw">import</span> time
+<span class="kw">import</span> nxt.locator
+<span class="kw">import</span> nxt.motor
+<span class="kw">import</span> nxt.sensor
+<span class="kw">import</span> nxt.sensor.generic
+
+<span class="kw">with</span> nxt.locator.find() <span class="kw">as</span> b:
+    izquierdo = b.get_motor(nxt.motor.<span class="ty">Port</span>.<span class="ty">B</span>)
+    derecho = b.get_motor(nxt.motor.<span class="ty">Port</span>.<span class="ty">C</span>)
+    sonar = b.get_sensor(nxt.sensor.<span class="ty">Port</span>.<span class="ty">S4</span>)
+
+    <span class="kw">try</span>:
+        <span class="kw">while</span> <span class="kw">True</span>:
+            <span class="kw">if</span> sonar.get_sample() &lt; <span class="nu">25</span>:
+                izquierdo.brake()
+                derecho.brake()
+                b.play_tone(<span class="nu">880</span>, <span class="nu">200</span>)
+                izquierdo.turn(<span class="nu">60</span>, <span class="nu">360</span>)      <span class="cm"># girar en el lugar</span>
+                derecho.turn(-<span class="nu">60</span>, <span class="nu">360</span>)
+            <span class="kw">else</span>:
+                izquierdo.run(<span class="nu">70</span>)
+                derecho.run(<span class="nu">70</span>)
+            time.sleep(<span class="nu">0.1</span>)
+    <span class="kw">except</span> <span class="ty">KeyboardInterrupt</span>:
+        print(<span class="st">"Fin"</span>)
+    finally:
+        <span class="cm"># pase lo que pase, frenar los motores al terminar</span>
+        izquierdo.brake()
+        derecho.brake()</pre>
+</div>
+
+<p><code>try / finally</code> asegura que los motores se detengan aunque el programa se corte con Ctrl + C.</p>
+  </div>
+</div>
+
+
+<div class="step" id="clase">
+  <div class="num">09</div>
+  <div class="content">
+    <h2>Una clase Robot en Python</h2>
+
+<p>La misma idea de la clase auxiliar de Java, ahora como una clase con atributos (<code>self.izquierdo</code>, <code>self.sonar</code>) y métodos. Permite comparar POO en los dos lenguajes.</p>
+<div class="term">
+  <div class="term-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="label">robot.py</span><button type="button">Copiar</button></div>
+  <pre><span class="kw">import</span> nxt.motor
+<span class="kw">import</span> nxt.sensor
+<span class="kw">import</span> nxt.sensor.generic
+
+
+<span class="kw">class</span> <span class="ty">Robot</span>:
+    <span class="kw">def</span> __init__(self, brick):
+        self.brick = brick
+        self.izquierdo = brick.get_motor(nxt.motor.<span class="ty">Port</span>.<span class="ty">B</span>)
+        self.derecho = brick.get_motor(nxt.motor.<span class="ty">Port</span>.<span class="ty">C</span>)
+        self.ambos = nxt.motor.<span class="ty">SynchronizedMotors</span>(self.izquierdo, self.derecho, <span class="nu">0</span>)
+        self.tacto = brick.get_sensor(nxt.sensor.<span class="ty">Port</span>.<span class="ty">S1</span>, nxt.sensor.generic.<span class="ty">Touch</span>)
+        self.sonar = brick.get_sensor(nxt.sensor.<span class="ty">Port</span>.<span class="ty">S4</span>)
+
+    <span class="kw">def</span> avanzar(self, grados, potencia=<span class="nu">70</span>):
+        self.ambos.turn(potencia, grados)
+
+    <span class="kw">def</span> girar_derecha(self, grados, potencia=<span class="nu">60</span>):
+        self.izquierdo.turn(potencia, grados)
+        self.derecho.turn(-potencia, grados)
+
+    <span class="kw">def</span> distancia(self):
+        <span class="kw">return</span> self.sonar.get_sample()
+
+    <span class="kw">def</span> choco(self):
+        <span class="kw">return</span> self.tacto.get_sample()
+
+    <span class="kw">def</span> pitar(self):
+        self.brick.play_tone(<span class="nu">440</span>, <span class="nu">200</span>)</pre>
+</div>
+<div class="term">
+  <div class="term-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="label">cuadrado.py</span><button type="button">Copiar</button></div>
+  <pre><span class="kw">import</span> nxt.locator
+<span class="kw">from</span> robot <span class="kw">import</span> <span class="ty">Robot</span>
+
+<span class="kw">with</span> nxt.locator.find() <span class="kw">as</span> b:
+    r = <span class="ty">Robot</span>(b)
+    <span class="kw">for</span> lado <span class="kw">in</span> range(<span class="nu">4</span>):
+        r.avanzar(<span class="nu">720</span>)
+        r.girar_derecha(<span class="nu">180</span>)     <span class="cm"># ajustar hasta lograr 90 grados</span>
+    r.pitar()</pre>
+</div>
+
+<p>Los dos archivos tienen que estar en la misma carpeta. Comparado con Java: <code>__init__</code> cumple el papel del constructor, y <code>self</code> el de <code>this</code>.</p>
+<div class="ej"><p class="panel-title">Ejercicios</p><ol><li>Agregar a <code>Robot</code> un método <code>girar_izquierda()</code> y otro <code>poligono(lados)</code>.</li><li>Escribir el explorador del tema anterior usando la clase <code>Robot</code>.</li><li>Comparar esta clase con <code>Robot.java</code>: ¿qué cambia en la sintaxis y qué se mantiene igual?</li></ol></div>
+  </div>
+</div>
+
+
+<div class="panel" id="windows">
+  <span class="badge warn">Windows</span>
+  <p class="panel-title">¿Y en Windows?</p>
+  <p>nxt-python funciona en Windows, pero necesita la librería libusb y, en muchos casos, reemplazar el driver USB del NXT con la herramienta <strong>Zadig</strong>. Ese cambio afecta a los demás programas que usan el NXT por USB en esa computadora (por ejemplo, el driver Fantom), y revertirlo no es simple. Por eso, en las Ceibalitas <strong>no se recomienda</strong>: conviene usar nxt-python desde Ubuntu.</p>
+</div>
+<div class="note" id="problemas">
+  <span class="badge warn">Problemas frecuentes</span>
+  <h2>Si algo no funciona</h2>
+  <dl>
+    <dt>«No module named 'nxt'»</dt>
+    <dd>El entorno virtual no está activado: ejecutar <code>source ~/nxt-env/bin/activate</code> (o elegir el intérprete correcto en VS Code).</dd>
+    <dt>«No brick found» / BrickNotFoundError</dt>
+    <dd>Revisar que el NXT esté encendido, con el firmware de LEGO, conectado por USB, y que exista la regla de permisos. Probar con <code>nxt-test</code>.</dd>
+    <dt>«Access denied» o error de permisos USB</dt>
+    <dd>Revisar la regla udev, desconectar y volver a conectar el NXT.</dd>
+    <dt>El NXT se apaga solo</dt>
+    <dd>Configurar <strong>Settings → Sleep → Never</strong> en el menú del NXT.</dd>
+    <dt>El robot sigue andando después de cortar el programa</dt>
+    <dd>Usar <code>try / finally</code> para frenar los motores al terminar, como en el ejemplo del explorador.</dd>
+  </dl>
+</div>
+<div class="panel">
+  <p class="panel-title">Documentación</p>
+  <p>Documentación oficial de nxt-python: <a href="https://ni.srht.site/nxt-python/latest/">ni.srht.site/nxt-python</a> (instalación, tutorial y referencia de la API).</p>
+</div>
+
+<footer>Material-Robotica · Prof. Elizabeth Izquierdo · LEGO NXT + nxt-python</footer>
+
+</div>
+<script>
+  document.querySelectorAll('.term').forEach(function (term) {
+    var btn = term.querySelector('button');
+    var pre = term.querySelector('pre');
+    if (!btn || !pre) return;
+    btn.addEventListener('click', function () {
+      var text = pre.innerText;
+      var done = function () {
+        btn.textContent = 'Copiado';
+        setTimeout(function () { btn.textContent = 'Copiar'; }, 1500);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done).catch(function () {});
+      }
+    });
+  });
+</script>
+</body>
+</html>
